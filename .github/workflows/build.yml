@@ -16,7 +16,7 @@ jobs:
           distribution: 'adopt'
           cache: gradle
       - name: Build with Gradle
-        run: ./gradlew shadowJar
+        run: ./gradlew jar
       - name: Publish to Modrinth
         if: ${{ success() && github.repository == 'Redned235/SignManager' && github.ref_name == 'main' }}
         env:
