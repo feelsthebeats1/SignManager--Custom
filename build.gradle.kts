@@ -38,3 +38,15 @@ tasks {
         expand("version" to rootProject.version)
     }
 }
+
+modrinth {
+    val snapshot = "SNAPSHOT" in rootProject.version.toString()
+
+    token.set(System.getenv("MODRINTH_TOKEN") ?: "")
+    projectId.set("signmanager")
+    versionNumber.set(rootProject.version as String + if (snapshot) "-" + System.getenv("BUILD_NUMBER") else "")
+    versionType.set(if (snapshot) "beta" else "release")
+    changelog.set(System.getenv("CHANGELOG") ?: "")
+    uploadFile.set(tasks.jar)
+    gameVersions.set(supportedVersions)
+}
