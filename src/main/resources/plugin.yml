@@ -1,0 +1,33 @@
+name: SignManager
+main: me.redned.signmanager.SignManager
+description: A sign manager plugin for Paper and Spigot that allows for easy editing of signs and comes with placeholder support.
+version: ${version}
+author: Redned
+api-version: 1.20
+softdepend: [PlaceholderAPI]
+libraries:
+  - net.kyori:adventure-platform-bukkit:4.3.4
+  - net.kyori:adventure-text-minimessage:4.17.0
+commands:
+  sign:
+    description: Sign management command.
+    permission: signmanager.command.sign
+permissions:
+  signmanager.command.sign:
+    description: Allows access to the sign command.
+    default: true
+  signmanager.command.sign.edit:
+    description: Allows access to the sign edit command.
+    default: op
+  signmanager.command.sign.edit.tags:
+    description: Allows access to use MiniMessage tags when editing signs.
+    default: op
+  signmanager.command.sign.edit.placeholders:
+    description: Allows access to adding PlaceholderAPI placeholders to signs.
+    default: op
+  signmanager.command.sign.admin:
+    description: Allows access to the sign admin subcommand.
+    default: op
+  signmanager.sign.click:
+    description: Allows access to click signs with commands attached.
+    default: true
