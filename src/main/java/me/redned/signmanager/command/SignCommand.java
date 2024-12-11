@@ -161,6 +161,10 @@ public class SignCommand implements TabExecutor {
                         String side = args[2];
                         String commandToRun = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
+                        // Make the sign uneditable
+                        sign.setEditable(false);
+                        sign.update();
+
                         if (side.equalsIgnoreCase("all")) {
                             this.plugin.setSignCommand(sign, Side.FRONT, commandToRun);
                             this.plugin.setSignCommand(sign, Side.BACK, commandToRun);
