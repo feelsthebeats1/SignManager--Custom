@@ -11,7 +11,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
@@ -39,19 +38,24 @@ public class SignCommand implements TabExecutor {
             return true;
         }
 
+        if (!player.hasPermission("signmanager.command.sign.edit") && !player.hasPermission("signmanager.command.sign.admin")) {
+            audience.sendMessage(Component.text("You do not have permission to execute this command!", NamedTextColor.RED));
+            return true;
+        }
+
         if (args.length == 0) {
-            this.sendHelp(audience);
+            this.sendHelp(player, audience);
             return true;
         }
 
         String subCommand = args[0];
-        if (args.length < 3) {
-            this.sendHelp(audience);
-            return true;
-        }
-
         switch (subCommand) {
             case "edit" -> {
+                if (args.length < 3) {
+                    this.sendHelp(player, audience);
+                    return true;
+                }
+
                 if (!player.hasPermission("signmanager.command.sign.edit")) {
                     audience.sendMessage(Component.text("You do not have permission to execute this command!", NamedTextColor.RED));
                     return true;
@@ -130,6 +134,11 @@ public class SignCommand implements TabExecutor {
                 }
             }
             case "admin" -> {
+                if (args.length < 2) {
+                    this.sendHelp(player, audience);
+                    return true;
+                }
+
                 if (!player.hasPermission("signmanager.command.sign.admin")) {
                     audience.sendMessage(Component.text("You do not have permission to execute this command!", NamedTextColor.RED));
                     return true;
@@ -144,6 +153,11 @@ public class SignCommand implements TabExecutor {
                 String adminSubCommand = args[1];
                 switch (adminSubCommand) {
                     case "interval" -> {
+                        if (args.length < 3) {
+                            this.sendHelp(player, audience);
+                            return true;
+                        }
+
                         int interval = Integer.parseInt(args[2]);
                         if (interval < 1) {
                             audience.sendMessage(Component.text("Interval must be greater than 0. If you wish to clear the interval, use /sign admin clear.", NamedTextColor.RED));
@@ -158,6 +172,11 @@ public class SignCommand implements TabExecutor {
                         audience.sendMessage(Component.text("Successfully cleared metadata from sign.", NamedTextColor.GREEN));
                     }
                     case "command" -> {
+                        if (args.length < 3) {
+                            this.sendHelp(player, audience);
+                            return true;
+                        }
+
                         String side = args[2];
                         String commandToRun = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
@@ -184,7 +203,7 @@ public class SignCommand implements TabExecutor {
                 }
             }
             default -> {
-                this.sendHelp(audience);
+                this.sendHelp(player, audience);
                 return true;
             }
         }
@@ -192,35 +211,47 @@ public class SignCommand implements TabExecutor {
         return true;
     }
 
-    private void sendHelp(Audience audience) {
+    private void sendHelp(Player player, Audience audience) {
         audience.sendMessage(SignManager.HEADER);
-        audience.sendMessage(Component.text("Editor Commands:"));
-        audience.sendMessage(Component.text("/sign edit line <line> <text> ", NamedTextColor.GREEN)
-                .append(Component.text("Edit a line of a sign.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("/sign edit editable <true|false> ", NamedTextColor.GREEN)
-                .append(Component.text("Set whether the sign is editable.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("/sign edit glowing <true|false> ", NamedTextColor.GREEN)
-                .append(Component.text("Set whether the sign is glowing.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("/sign edit color <color> ", NamedTextColor.GREEN)
-                .append(Component.text("Set the color of the sign.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("Admin Commands:"));
-        audience.sendMessage(Component.text("/sign admin interval <interval> ", NamedTextColor.GREEN)
-                .append(Component.text("Set the update interval of the sign.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("/sign admin command <front|back|all> <command> ", NamedTextColor.GREEN)
-                .append(Component.text("Set a command to run when the sign is clicked.", NamedTextColor.DARK_GREEN)));
-        audience.sendMessage(Component.text("/sign admin clear ", NamedTextColor.GREEN)
-                .append(Component.text("Clear any metadata from the sign.", NamedTextColor.DARK_GREEN)));
+        if (player.hasPermission("signmanager.command.sign.edit")) {
+            audience.sendMessage(Component.text("Editor Commands:"));
+            audience.sendMessage(Component.text("/sign edit line <line> <text> ", NamedTextColor.GREEN)
+                    .append(Component.text("Edit a line of a sign.", NamedTextColor.DARK_GREEN)));
+            audience.sendMessage(Component.text("/sign edit editable <true|false> ", NamedTextColor.GREEN)
+                    .append(Component.text("Set whether the sign is editable.", NamedTextColor.DARK_GREEN)));
+            audience.sendMessage(Component.text("/sign edit glowing <true|false> ", NamedTextColor.GREEN)
+                    .append(Component.text("Set whether the sign is glowing.", NamedTextColor.DARK_GREEN)));
+            audience.sendMessage(Component.text("/sign edit color <color> ", NamedTextColor.GREEN)
+                    .append(Component.text("Set the color of the sign.", NamedTextColor.DARK_GREEN)));
+        }
+
+        if (player.hasPermission("signmanager.command.sign.admin")) {
+            audience.sendMessage(Component.text("Admin Commands:"));
+            audience.sendMessage(Component.text("/sign admin interval <interval> ", NamedTextColor.GREEN)
+                    .append(Component.text("Set the update interval of the sign.", NamedTextColor.DARK_GREEN)));
+            audience.sendMessage(Component.text("/sign admin command <front|back|all> <command> ", NamedTextColor.GREEN)
+                    .append(Component.text("Set a command to run when the sign is clicked.", NamedTextColor.DARK_GREEN)));
+            audience.sendMessage(Component.text("/sign admin clear ", NamedTextColor.GREEN)
+                    .append(Component.text("Clear any metadata from the sign.", NamedTextColor.DARK_GREEN)));
+        }
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], List.of("edit", "admin"), completions);
+            List<String> subCommands = new ArrayList<>();
+            if (sender.hasPermission("signmanager.command.sign.edit")) {
+                subCommands.add("edit");
+            }
+            if (sender.hasPermission("signmanager.command.sign.admin")) {
+                subCommands.add("admin");
+            }
+            return StringUtil.copyPartialMatches(args[0], subCommands, completions);
         }
 
         if (args.length >= 2) {
-            if (args[0].equalsIgnoreCase("edit")) {
+            if (args[0].equalsIgnoreCase("edit") && sender.hasPermission("signmanager.command.sign.edit")) {
                 if (args.length == 2) {
                     return StringUtil.copyPartialMatches(args[1], List.of("line", "editable", "glowing", "color"), completions);
                 }
@@ -244,7 +275,7 @@ public class SignCommand implements TabExecutor {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("admin")) {
+            if (args[0].equalsIgnoreCase("admin") && sender.hasPermission("signmanager.command.sign.admin")) {
                 if (args.length == 2) {
                     return StringUtil.copyPartialMatches(args[1], List.of("interval", "clear", "command"), completions);
                 }
