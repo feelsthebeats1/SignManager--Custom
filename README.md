@@ -36,5 +36,3 @@ This plugin also supports newer sign features from 1.20+, such as multiple sign 
 - **signmanager.command.sign.edit.placeholders** - Whether placeholders should be replaced when using **/sign edit**.
 - **signmanager.command.admin** - Access to the **/sign admin** command.
 - **signmanager.sign.click** - Access to click signs with commands attached.
-
-# Custom for zowmc.com
